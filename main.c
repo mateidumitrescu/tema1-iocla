@@ -16,10 +16,7 @@ int add_at(void **arr, int *len, data_structure *data, int index);
 
 void find(void *data_block, int len, int index);
 
-int delete_at(void **arr, int *len, int index)
-{
-
-}
+int delete_at(void **arr, int *len, int index);
 
 // used to create a data structure
 void create_data(char *line, data_structure *data_block, char *token);
@@ -34,6 +31,7 @@ int main() {
 	int len = 0;  // used for counting the number of structures in arr
 	int go = 1;
 	char *line = malloc(256 * sizeof(char));
+	DIE(!line, "Malloc failed\n");
 	if (!line) {
 		fprintf(stderr, "Malloc failed\n");
 		return -1;
@@ -67,17 +65,30 @@ int main() {
 				if (add_at(&arr, &len, data_block, index) != 0) {
 					return -1;
 				}
+				free(data_block->data);
 			} else if (strcmp(token, "find") == 0) {
 				token = strtok(NULL, " ");
 				int index = atoi(token);
 				find(arr, len, index);
+			} else if (strcmp(token, "delete_at") == 0) {
+				token = strtok(NULL, " ");
+				int index = atoi(token);
+				if (delete_at(&arr, &len, index) != 0) {
+					return -1;
+				}
 			}
 		} else if (line[0] == 'p' || line[0] == 'e') {
 			if (strcmp(line, "print") == 0) {
 				print_data(&arr, len);
+			} else if (strcmp(line , "exit") == 0) {
+				free(line);
+				go = 0;
 			}
 		}
 	}
+	free(data_block->header);
+	free(data_block);
+	free(arr);
 	return 0;
 }
 
@@ -200,6 +211,42 @@ void find(void *data_block, int len, int index)
 			printf("%"PRId32"\n", sum_2);
 			printf("\n");
 		}
+}
+
+int delete_at(void **arr, int *len, int index)
+{
+	if (index < 0 || index >= *len) {
+		return -1;
+	}
+	unsigned char type;
+	unsigned int len_of_data;
+	unsigned int aux_len_1 = 0;
+	for (int i = 0; i <= index; i++) {
+		type = *(unsigned char *)(*arr + aux_len_1);
+		len_of_data = *(unsigned int *)(*arr + aux_len_1 + sizeof(type));
+		aux_len_1 += sizeof(type) + sizeof(len_of_data) + len_of_data;
+	}
+
+	unsigned int del_data_len = sizeof(unsigned char) + sizeof(unsigned int) + len_of_data;
+	
+	unsigned int aux_len_2 = aux_len_1;
+	for (int i = index; i < *len; i++) {
+		unsigned char type_2 = *(unsigned char *)(*arr + aux_len_2);
+		unsigned int len_of_data_2 = *(unsigned int *)(*arr + aux_len_2 + sizeof(type_2));
+		aux_len_2 += sizeof(type_2) + sizeof(len_of_data_2) + len_of_data_2;
+	}
+	void *aux_arr = malloc(aux_len_1);
+	memcpy(aux_arr, *arr, aux_len_1);
+	aux_arr = realloc(aux_arr, aux_len_2 - del_data_len);
+	memcpy(aux_arr + aux_len_1, *arr + aux_len_1 + del_data_len, aux_len_2 - aux_len_1 - del_data_len);
+	free(*arr);
+	*arr = malloc(aux_len_2 - del_data_len);
+	memcpy(*arr, aux_arr, aux_len_2 - del_data_len);
+	
+
+	(*len)--;
+	free(aux_arr);
+	return 0;
 }
 
 void create_data(char *line, data_structure *data_block, char *token) {
