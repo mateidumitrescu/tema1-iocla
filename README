@@ -1,0 +1,19 @@
+To make this program work properly, I created a char *line to read the commands
+from the command line. I used a char *token to read each argument
+from line and work with it in the functions.
+
+To make this program efficient from memory point of view everything must be
+dynamically alloc'd and freed after exit command.
+
+Variable len was used to store the number of structures in the void *arr. 
+
+Function create_data is used to malloc a new data structure. After inserting it
+in the *arr, program must free it because it is an auxiliar structure.
+
+Function print_data is used to print all the elements of the *arr in the format
+that was specified.
+
+To read the data in the *arr program uses a for instruction until the len of *arr
+and to read data, data->header->type and data->header->len are stored too in the *arr.
+Both data->header->type and data->header->len must be casted to unsigned char and
+unsigned int.
