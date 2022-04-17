@@ -32,10 +32,6 @@ int main() {
     int go = 1;
     char *line = malloc(256 * sizeof(char));
     DIE(!line, "Malloc failed\n");
-    if (!line) {
-        fprintf(stderr, "Malloc failed\n");
-        return -1;
-    }
 
     char *token;
     data_structure *data_block = malloc(sizeof(*data_block));
@@ -43,10 +39,7 @@ int main() {
 
     data_block->header = malloc(sizeof(head));
     DIE(!data_block->header, "Malloc failed\n");
-    if (!data_block->header) {
-        fprintf(stderr, "Malloc failed\n");
-        return -1;
-    }
+
     while (go) {
         fgets(line, MAX, stdin);
         line[strlen(line) - 1] = '\0';
@@ -115,6 +108,7 @@ int add_last(void **arr, int *len, data_structure *data)
         }
         unsigned int new_len = aux_len + sizeof(unsigned char) + sizeof(unsigned int) + data->header->len;
         *arr = realloc(*arr, new_len);
+        DIE(!(*arr), "Realloc failed\n");
         memcpy((*arr + aux_len), &data->header->type, sizeof(unsigned char));
         memcpy((*arr + aux_len + sizeof(unsigned char)), &data->header->len, sizeof(unsigned int));
         memcpy((*arr + new_len - data->header->len), data->data, data->header->len);
@@ -150,6 +144,7 @@ int add_at(void **arr, int *len, data_structure *data, int index) {
     unsigned int new_data_len = sizeof(unsigned char) + sizeof(unsigned int) + data->header->len;
     unsigned int new_arr_len = aux_len_2 + new_data_len;
     *arr = realloc(*arr, new_arr_len);
+    DIE(!(*arr), "Realloc failed\n");
     void *aux_arr = malloc(aux_len_2 - aux_len_1 + new_data_len); // creating an auxiliar array to store after index data
     DIE(!aux_arr, "Malloc failed\n");
 
@@ -241,6 +236,8 @@ int delete_at(void **arr, int *len, int index)
 
     memmove(*arr + aux_len_1 - del_data_len, *arr + aux_len_1, aux_len_2 - aux_len_1);
     void *aux_arr = malloc(aux_len_2 - del_data_len);
+    DIE(!aux_arr, "Malloc failed\n");
+
     memcpy(aux_arr, *arr, aux_len_2 - del_data_len);
     free(*arr);
     *arr = aux_arr;
@@ -259,6 +256,7 @@ void create_data(char *line, data_structure *data_block, char *token) {
                 DIE(!name_1, "Malloc failed\n");
                 strcpy(name_1, token);
                 data_block->data = malloc(strlen(name_1) + 1);
+                DIE(!data_block->data, "Malloc failed\n");
                 memcpy(data_block->data, name_1, strlen(name_1) + 1);
                 data_block->header->len += strlen(name_1) + 1;
                 token = strtok(NULL, " ");
@@ -270,6 +268,7 @@ void create_data(char *line, data_structure *data_block, char *token) {
                     token = strtok(NULL, " ");
                     int8_t sum_2 = atoi(token);
                     data_block->data = realloc(data_block->data, data_block->header->len);
+                    DIE(!data_block->data, "Realloc failed\n");
                     memcpy(data_block->data + strlen(name_1) + 1, &sum_1, sizeof(int8_t));
                     memcpy(data_block->data + strlen(name_1) + 1 + sizeof(int8_t), &sum_2,
                            sizeof(int8_t));
@@ -279,6 +278,7 @@ void create_data(char *line, data_structure *data_block, char *token) {
                     token = strtok(NULL, " ");
                     int32_t sum_2 = atoi(token);
                     data_block->data = realloc(data_block->data, data_block->header->len);
+                    DIE(!data_block->data, "Realloc failed\n");
                     memcpy(data_block->data + strlen(name_1) + 1, &sum_1, sizeof(int16_t));
                     memcpy(data_block->data + strlen(name_1) + 1 + sizeof(int16_t), &sum_2,
                            sizeof(int32_t));
@@ -288,15 +288,18 @@ void create_data(char *line, data_structure *data_block, char *token) {
                     token = strtok(NULL, " ");
                     int32_t sum_2 = atoi(token);
                     data_block->data = realloc(data_block->data, data_block->header->len);
+                    DIE(!data_block->data, "Realloc failed\n");
                     memcpy(data_block->data + strlen(name_1) + 1, &sum_1, sizeof(int32_t));
                     memcpy(data_block->data + strlen(name_1) + 1 + sizeof(int32_t), &sum_2,
                            sizeof(int32_t));
                 }
                 token = strtok(NULL, " ");
                 name_2 = malloc((strlen(token) + 1) * sizeof(char));
+                DIE(!name_2, "Malloc failed\n");
                 strcpy(name_2, token);
                 data_block->header->len += strlen(name_2) + 1;
                 data_block->data = realloc(data_block->data, data_block->header->len);
+                DIE(!data_block->data, "Realloc failed\n");
                 memcpy(data_block->data + data_block->header->len - strlen(name_2) - 1,
                        name_2, strlen(name_2) + 1);
     free(name_1);
