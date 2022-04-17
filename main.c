@@ -141,7 +141,7 @@ int add_at(void **arr, int *len, data_structure *data, int index) {
     }
 
     unsigned int aux_len_2 = aux_len_1;
-    for (int i = index - 1; i < *len; i++) {
+    for (int i = index; i < *len; i++) {
         unsigned char type = *(unsigned char *)(*arr + aux_len_2);
         unsigned int len_of_data = *(unsigned int *)(*arr + sizeof(type) + aux_len_2);
         aux_len_2 += sizeof(type) + sizeof(len_of_data) + len_of_data;
@@ -175,7 +175,7 @@ void find(void *data_block, int len, int index)
     unsigned int aux_len = 0;
     for (int i = 0; i <= index; i++) {
         type = *(unsigned char *)(data_block + aux_len);
-        len_of_data = *(unsigned int *)(data_block + sizeof(type));
+        len_of_data = *(unsigned int *)(data_block + aux_len + sizeof(type));
         aux_len += sizeof(unsigned char) + sizeof(len_of_data) + len_of_data;
     }
 
@@ -333,7 +333,7 @@ void print_data(void **arr, int len) {
             printf("%"PRId32"\n", sum_2);
             printf("\n");
             aux_len += len_of_data;
-        } else {
+        } else if (type == '3') {
             printf("Tipul 3\n");
             char *name_1 = (char *)(*arr + aux_len);
             printf("%s pentru ", name_1);
